@@ -5,13 +5,13 @@ async function login(req, res, next) {
         const tokens = await authService.login(req.body);
         res.cookie('accessToken', tokens.accessToken, {
             httpOnly: true,
-            secure: false,
+            secure: process.env.NODE_ENV === 'production',
             sameSite: "strict",
             maxAge: 15 * 60 * 1000
         });
         res.cookie('refreshToken', tokens.refreshToken, {
             httpOnly: true,
-            secure: false,
+            secure: process.env.NODE_ENV === 'production',
             sameSite: "strict",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
@@ -31,7 +31,7 @@ function refreshToken(req, res, next) {
 
         res.cookie('accessToken', newAccessToken, {
             httpOnly: true,
-            secure: false,
+            secure: process.env.NODE_ENV === 'production',
             sameSite: "strict",
             maxAge: 15 * 60 * 1000
         });
