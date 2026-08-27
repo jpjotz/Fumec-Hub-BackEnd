@@ -10,11 +10,14 @@ const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
 const sequelize = require('./Config/database');
 const errorHandler = require('./Middlewares/errorHandler');
+const http = require('http');
+const initializeSocket = require('./Sockets/socket');
 
 const userRoutes = require('./Routes/user.routes');
 const authRoutes = require('./Routes/auth.routes');
 const messageRoutes = require('./Routes/message.routes');
 const chatRoutes = require('./Routes/chat.routes');
+const friendshipRoutes = require('./Routes/friendship.routes');
 
 // Variáveis
 
@@ -27,11 +30,20 @@ const limiter = rateLimit({
     message: "Muitas requisições, favor aguardar"
 });
 
+// Web Socket
+
+const server = http.createServer(app);
+
+initializeSocket(server);
+
 // Middlewares
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 app.use(limiter);
 
 // Rotas
@@ -40,6 +52,7 @@ app.use('/users', userRoutes);
 app.use('/auth', authRoutes);
 app.use('/messages', messageRoutes);
 app.use('/chats', chatRoutes);
+app.use('/friend', friendshipRoutes);
 
 // Error Handler
 
@@ -57,7 +70,7 @@ sequelize.authenticate()
     .then(() => {
         console.log('Tabelas sincronizadas!')
 
-        app.listen(PORT, () => {
+        server.listen(PORT, () => {
             console.log("Servidor rodando!")
         });
     })

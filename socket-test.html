@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste WebSocket</title>
+</head>
+
+<body>
+
+    <h1>Teste WebSocket</h1>
+
+    <button id="joinChat">Entrar no Chat 123</button>
+    <button id="sendMessage">Enviar mensagem</button>
+
+    <script>
+
+        const socket = new WebSocket('ws://localhost:3000');
+
+        // Quando conectar
+        socket.onopen = () => {
+            console.log('Conectado ao servidor!');
+        };
+
+        // Quando receber uma mensagem
+        socket.onmessage = (event) => {
+            console.log('Mensagem recebida:', event.data);
+        };
+
+        // Quando desconectar
+        socket.onclose = () => {
+            console.log('Desconectado do servidor!');
+        };
+
+        // Quando acontecer um erro
+        socket.onerror = (error) => {
+            console.log('Erro:', error);
+        };
+
+        // Entrar no chat
+        document.getElementById('joinChat').addEventListener('click', () => {
+
+            socket.send(JSON.stringify({
+                event: 'joinChat',
+                chatId: 123
+            }));
+
+            console.log('Entrando no chat 123...');
+
+        });
+
+        // Enviar mensagem
+        document.getElementById('sendMessage').addEventListener('click', () => {
+
+            socket.send(JSON.stringify({
+                event: 'sendMessage',
+                chatId: 123,
+                content: 'Olá, chat!'
+            }));
+
+            console.log('Mensagem enviada!');
+
+        });
+
+    </script>
+
+</body>
+
+</html>
