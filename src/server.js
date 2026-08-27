@@ -1,3 +1,5 @@
+// .env
+
 require('dotenv').config();
 
 // Imports
@@ -9,8 +11,10 @@ const rateLimit = require('express-rate-limit');
 const sequelize = require('./Config/database');
 const errorHandler = require('./Middlewares/errorHandler');
 
-const userRoutes = require('./Routes/userRoutes');
-const authRoutes = require('./Routes/authRoutes');
+const userRoutes = require('./Routes/user.routes');
+const authRoutes = require('./Routes/auth.routes');
+const messageRoutes = require('./Routes/message.routes');
+const chatRoutes = require('./Routes/chat.routes');
 
 // Variáveis
 
@@ -33,7 +37,9 @@ app.use(limiter);
 // Rotas
 
 app.use('/users', userRoutes);
-app.use('/auth', authRoutes)
+app.use('/auth', authRoutes);
+app.use('/messages', messageRoutes);
+app.use('/chats', chatRoutes);
 
 // Error Handler
 
