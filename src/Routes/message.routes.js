@@ -4,7 +4,7 @@ const router = express.Router();
 const { createMessage, getMessagesByChat } = require('../Controllers/messageController');
 const authMiddleware = require('../Middlewares/authMiddleware');
 
-application.use(authMiddleware);
+router.use(authMiddleware);
 
 router.get('/:chatId', getMessagesByChat);
 
