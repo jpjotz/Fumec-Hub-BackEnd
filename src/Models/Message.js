@@ -6,7 +6,8 @@ const Chat = require('./Chat');
 const message = sequelize.define("Message", {
     id: {
         type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true
     },
 
     chatId: {
