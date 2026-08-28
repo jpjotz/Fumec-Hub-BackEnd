@@ -27,9 +27,11 @@ async function createUser(data) {
         throw error;
     }
 
+    const friendCode = email.split("@")[0].substring(1);
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({name, email, password: hashedPassword});
+    const user = await User.create({name, email, password: hashedPassword, friendCode});
 
     return user;
 }

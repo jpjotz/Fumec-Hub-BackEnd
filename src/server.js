@@ -52,7 +52,7 @@ app.use('/users', userRoutes);
 app.use('/auth', authRoutes);
 app.use('/messages', messageRoutes);
 app.use('/chats', chatRoutes);
-app.use('/friend', friendshipRoutes);
+app.use('/friends', friendshipRoutes);
 
 // Error Handler
 
@@ -64,7 +64,7 @@ sequelize.authenticate()
     .then(() => {
         console.log('Banco de Dados conectado!');
 
-        return sequelize.sync();
+        return sequelize.sync({alter: true});
     })
 
     .then(() => {

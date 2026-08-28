@@ -1,18 +1,56 @@
 const Friendship = require('../Models/Friendship');
 const Chat = require('../Models/Chat');
 const { Op } = require('sequelize');
+const User = require('../Models/User');
 
-async function sendFriendRequest(userId, friendId) {
+async function getFriendshipRequests(userId) {
+    const requests = await Friendship.findAll({
+        where: {
+            user2Id: userId,
+            status: "pending"
+        },
+
+        include: [{
+            model: User,
+            as: "sender",
+            attributes: ["name", "friendCode"]
+        }]
+    });
+
+    return { count: requests.length, requests }
+
+}
+
+async function sendFriendRequest(userId, friendCode) {
+
+    const friend = await User.findOne({
+        where: {
+            friendCode
+        }
+    });
+
+    if (!friend) {
+        const error = new Error("Nenhum usuário encontrado!");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (userId === friend.id) {
+        const error = new Error("Usuário não pode adicionar a si mesmo!");
+        error.statusCode = 409;
+        throw error;
+    }
+
     const isFriends = await Friendship.findOne({
         where: {
             [Op.or]: [
                 {
                     user1Id: userId,
-                    user2Id: friendId
+                    user2Id: friend.id
                 },
 
                 {
-                    user1Id: friendId,
+                    user1Id: friend.id,
                     user2Id: userId
                 }
             ]
@@ -27,7 +65,7 @@ async function sendFriendRequest(userId, friendId) {
 
     const newFriendshipRequest = await Friendship.create({
         user1Id: userId,
-        user2Id: friendId
+        user2Id: friend.id
     });
 
     return { message: "Solicitação enviada!", newFriendshipRequest }
@@ -53,7 +91,7 @@ async function acceptFriendRequest(userId, friendshipId) {
         throw error;
     }
 
-    if(requestExists.status !== 'pending') {
+    if (requestExists.status !== 'pending') {
         const error = new Error("Amizade já aceita");
         error.statusCode = 409;
         throw error;
@@ -69,7 +107,7 @@ async function acceptFriendRequest(userId, friendshipId) {
 
     })
 
-    return {message: "Solicitação de amizade aceita!"}
+    return { message: "Solicitação de amizade aceita!" }
 }
 
-module.exports = { sendFriendRequest, acceptFriendRequest }
+module.exports = { sendFriendRequest, acceptFriendRequest, getFriendshipRequests }

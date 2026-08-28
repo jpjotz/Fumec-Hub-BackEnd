@@ -20,12 +20,12 @@ const Friendship = sequelize.define("Friendship", {
     },
 
     status: {
-        type: DataTypes.ENUM("pending", "accepted"),
+        type: DataTypes.ENUM("pending", "accepted", "rejected"),
         defaultValue: "pending"
     }
 });
 
-Friendship.belongsTo(User, { foreignKey: "user1Id" });
-Friendship.belongsTo(User, { foreignKey: "user2Id" });
+Friendship.belongsTo(User, { foreignKey: "user1Id", as: "sender" });
+Friendship.belongsTo(User, { foreignKey: "user2Id", as: "receiver" });
 
 module.exports = Friendship
