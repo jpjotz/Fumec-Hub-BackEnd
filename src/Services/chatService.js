@@ -38,7 +38,13 @@ async function getChatsByUser(userId) {
         ]
     });
 
-    return { chats }
+    const formattedChats = chats.map(chat => {
+        const otherUser = chat.user1Id === userId ? chat.user2 : chat.user1;
+
+        return {id: chat.id, otherUser}
+    })
+
+    return { chats: formattedChats }
 }
 
 module.exports = { createChat, getChatsByUser }
