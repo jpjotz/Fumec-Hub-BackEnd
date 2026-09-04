@@ -27,11 +27,13 @@ async function getChatsByUser(userId) {
         include: [
             {
                 model: User,
-                as: 'user1'
+                as: 'user1',
+                attributes: ['id', 'name']
             },
             {
                 model: User,
-                as: 'user2'
+                as: 'user2',
+                attributes: ['id', 'name']
             }
         ]
     });
