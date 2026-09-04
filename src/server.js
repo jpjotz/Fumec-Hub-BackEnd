@@ -11,7 +11,7 @@ const rateLimit = require('express-rate-limit');
 const sequelize = require('./Config/database');
 const errorHandler = require('./Middlewares/errorHandler');
 const http = require('http');
-const initializeSocket = require('./Sockets/socket');
+const {initializeSocket} = require('./Sockets/socket');
 
 const userRoutes = require('./Routes/user.routes');
 const authRoutes = require('./Routes/auth.routes');
@@ -64,7 +64,7 @@ sequelize.authenticate()
     .then(() => {
         console.log('Banco de Dados conectado!');
 
-        return sequelize.sync({alter: true});
+        return sequelize.sync();
     })
 
     .then(() => {

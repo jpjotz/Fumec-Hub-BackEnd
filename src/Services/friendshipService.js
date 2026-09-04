@@ -2,6 +2,7 @@ const Friendship = require('../Models/Friendship');
 const Chat = require('../Models/Chat');
 const { Op } = require('sequelize');
 const User = require('../Models/User');
+const { sendToUser } = require('../Sockets/socket');
 
 async function getFriendshipRequests(userId) {
     const requests = await Friendship.findAll({
@@ -68,6 +69,10 @@ async function sendFriendRequest(userId, friendCode) {
         user2Id: friend.id
     });
 
+    sendToUser(friend.id, {
+        event: "friendRequest"
+    });
+
     return { message: "Solicitação enviada!", newFriendshipRequest }
 
 }
@@ -110,4 +115,38 @@ async function acceptFriendRequest(userId, friendshipId) {
     return { message: "Solicitação de amizade aceita!" }
 }
 
-module.exports = { sendFriendRequest, acceptFriendRequest, getFriendshipRequests }
+async function rejectFriendRequest(userId, friendshipId) {
+    const requestExists = await Friendship.findOne({
+        where: {
+            id: friendshipId
+        }
+    });
+
+    if (!requestExists) {
+        const error = new Error("Pedido de amizade inexistente!");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (requestExists.user2Id !== userId) {
+        const error = new Error("Usuário inválido");
+        error.statusCode = 403;
+        throw error;
+    }
+
+    if (requestExists.status !== 'pending') {
+        const error = new Error("Amizade já aceita!");
+        error.statusCode = 409;
+        throw error;
+    }
+
+    requestExists.status = "rejected";
+
+    await requestExists.save();
+
+    return {
+        message: "Solicitação de amizade recusada!"
+    }
+}
+
+module.exports = { sendFriendRequest, acceptFriendRequest, getFriendshipRequests, rejectFriendRequest }

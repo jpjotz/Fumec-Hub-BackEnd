@@ -7,7 +7,7 @@ const { createUser, getProfile, editProfile, changePassword } = require('../Cont
 
 router.get('/me', authMiddleware, getProfile )
 
-router.post('/create', createUser);
+router.post('/register', createUser);
 
 router.patch('/me', authMiddleware, editProfile)
 router.patch('/me/password', authMiddleware, changePassword);

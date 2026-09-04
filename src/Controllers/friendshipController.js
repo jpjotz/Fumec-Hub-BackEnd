@@ -38,4 +38,17 @@ async function acceptFriendRequest(req, res, next) {
     }
 }
 
-module.exports = { sendFriendRequest, acceptFriendRequest, getFriendshipRequests }
+async function rejectFriendRequest(req, res, next) {
+    try {
+        const userId = req.user.id;
+        const { friendshipId } = req.params;
+
+        const result = await friendshipService.rejectFriendRequest(userId, friendshipId);
+
+        return res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+}
+
+module.exports = { sendFriendRequest, acceptFriendRequest, getFriendshipRequests, rejectFriendRequest }

@@ -1,9 +1,26 @@
 const userService = require('../Services/userService');
+const { generateTokens } = require('../Services/authService');
 
 async function createUser(req, res, next) {
 
     try {
         const user = await userService.createUser(req.body);
+        const tokens = generateTokens(user);
+
+        res.cookie('accessToken', tokens.accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 15 * 60 * 1000
+        });
+        
+        res.cookie('refreshToken', tokens.refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
         return res.status(201).json({
             message: "Usuário criado com sucesso!",
             user: {

@@ -11,58 +11,105 @@
 
     <h1>Teste WebSocket</h1>
 
-    <button id="joinChat">Entrar no Chat 123</button>
+    <input id="email" type="email" placeholder="E-mail">
+    <input id="password" type="password" placeholder="Senha">
+    <button id="login">Login</button>
+
+    <hr>
+
+    <button id="joinChat">Entrar no Chat</button>
     <button id="sendMessage">Enviar mensagem</button>
 
     <script>
+        let socket;
 
-        const socket = new WebSocket('ws://localhost:3000');
+        document.getElementById("login").addEventListener("click", async () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
 
-        // Quando conectar
-        socket.onopen = () => {
-            console.log('Conectado ao servidor!');
-        };
+            try {
+                const response = await fetch("http://127.0.0.1:3000/auth/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                });
 
-        // Quando receber uma mensagem
-        socket.onmessage = (event) => {
-            console.log('Mensagem recebida:', event.data);
-        };
+                const data = await response.json();
 
-        // Quando desconectar
-        socket.onclose = () => {
-            console.log('Desconectado do servidor!');
-        };
+                console.log("Login:", data);
 
-        // Quando acontecer um erro
-        socket.onerror = (error) => {
-            console.log('Erro:', error);
-        };
+                if (!response.ok) {
+                    return;
+                }
 
-        // Entrar no chat
-        document.getElementById('joinChat').addEventListener('click', () => {
+                console.log("Login realizado!");
+
+                // Agora abre o WebSocket.
+                // O navegador enviará automaticamente o accessToken
+                // que foi salvo no cookie.
+                socket = new WebSocket("ws://127.0.0.1:3000");
+
+                socket.onopen = () => {
+                    console.log("WebSocket conectado!");
+                };
+
+                socket.onmessage = (event) => {
+                    const message = JSON.parse(event.data);
+
+                    console.log("Mensagem recebida:", message);
+
+                    if (message.event === "friendRequest") {
+                        console.log("🔔 Nova solicitação de amizade!");
+                    }
+                };
+
+                socket.onclose = () => {
+                    console.log("WebSocket desconectado!");
+                };
+
+                socket.onerror = (error) => {
+                    console.error("Erro no WebSocket:", error);
+                };
+
+            } catch (error) {
+                console.error("Erro no login:", error);
+            }
+        });
+
+        document.getElementById("joinChat").addEventListener("click", () => {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                console.log("WebSocket não está conectado.");
+                return;
+            }
 
             socket.send(JSON.stringify({
-                event: 'joinChat',
+                event: "joinChat",
                 chatId: 123
             }));
 
-            console.log('Entrando no chat 123...');
-
+            console.log("Entrando no chat...");
         });
 
-        // Enviar mensagem
-        document.getElementById('sendMessage').addEventListener('click', () => {
+        document.getElementById("sendMessage").addEventListener("click", () => {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                console.log("WebSocket não está conectado.");
+                return;
+            }
 
             socket.send(JSON.stringify({
-                event: 'sendMessage',
+                event: "sendMessage",
                 chatId: 123,
-                content: 'Olá, chat!'
+                content: "Olá, chat!"
             }));
 
-            console.log('Mensagem enviada!');
-
+            console.log("Mensagem enviada!");
         });
-
     </script>
 
 </body>

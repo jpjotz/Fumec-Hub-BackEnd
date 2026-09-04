@@ -2,6 +2,20 @@ const User = require('../Models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
+function generateTokens(user) {
+    const payload = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+    }
+
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '15m' });
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+
+    return { accessToken, refreshToken }
+
+}
+
 async function login(data) {
     const { email, password } = data;
 
@@ -32,16 +46,7 @@ async function login(data) {
         throw error;
     }
 
-    const payload = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-    }
-
-    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '15m' });
-    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
-
-    return { accessToken, refreshToken }
+    return generateTokens(user);
 }
 
 function refreshToken(refreshToken) {
@@ -74,4 +79,4 @@ function refreshToken(refreshToken) {
     }
 }
 
-module.exports = { login, refreshToken }
+module.exports = { login, refreshToken, generateTokens }

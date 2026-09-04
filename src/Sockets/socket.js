@@ -91,6 +91,26 @@ async function getChatMessages(socket, chatId) {
 
 }
 
+function joinUserRoom(socket) {
+    const userRoom = `user:${socket.userId}`;
+
+    if (!rooms.has(userRoom)) {
+        rooms.set(userRoom, new Set());
+    }
+
+    rooms.get(userRoom).add(socket);
+}
+
+function sendToUser(userId, message) {
+    const userRoom = rooms.get(`user:${userId}`);
+
+    if (!userRoom) return;
+
+    for (const clientSocket of userRoom) {
+        clientSocket.send(JSON.stringify(message));
+    }
+}
+
 function initializeSocket(server) {
     const wss = new WebSocket.Server({ server });
 
@@ -105,6 +125,8 @@ function initializeSocket(server) {
             const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
 
             socket.userId = decoded.id;
+
+            joinUserRoom(socket);
         } catch (error) {
             socket.close();
             return;
@@ -113,13 +135,15 @@ function initializeSocket(server) {
         socket.on("message", (data) => {
             const message = JSON.parse(data.toString());
 
-            if (message.event === "joinChat") {
-                joinChat(socket, message.chatId);
-                getChatMessages(socket, message.chatId);
-            }
+            switch (message.event) {
+                case "joinChat":
+                    joinChat(socket, message.chatId);
+                    getChatMessages(socket, message.chatId);
+                    break;
 
-            if (message.event === "sendMessage") {
-                sendToRoom(socket, message.chatId, message);
+                case "sendMessage":
+                    sendToRoom(socket, message.chatId, message);
+                    break;
             }
         });
 
@@ -130,4 +154,4 @@ function initializeSocket(server) {
     });
 }
 
-module.exports = initializeSocket;
+module.exports = { initializeSocket, sendToUser };
