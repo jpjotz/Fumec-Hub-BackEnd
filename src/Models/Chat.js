@@ -28,11 +28,13 @@ const chat = sequelize.define("Chat", {
 });
 
 chat.belongsTo(User, {
-    foreignKey: "user1Id"
+    foreignKey: "user1Id",
+    as: 'user1'
 });
 
 chat.belongsTo(User, {
-    foreignKey: "user2Id"
+    foreignKey: "user2Id",
+    as: 'user2'
 });
 
 module.exports = chat;
