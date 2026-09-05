@@ -46,8 +46,14 @@ function refreshToken(req, res, next) {
 }
 
 function logout(req, res) {
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    res.clearCookie('accessToken', {
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none'
+    });
+    res.clearCookie('refreshToken', {
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none'
+    });
 
     res.status(200).json({
         message: "Logout realizado com sucesso"
