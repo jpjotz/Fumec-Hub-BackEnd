@@ -24,8 +24,8 @@ const friendshipRoutes = require('./Routes/friendship.routes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 50,
+    windowMs: 60 * 60 * 1000,
+    limit: 100,
     statusCode: 429,
     message: "Muitas requisições, favor aguardar"
 });
