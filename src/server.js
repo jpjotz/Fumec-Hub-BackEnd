@@ -40,16 +40,16 @@ initializeSocket(server);
 
 app.use(express.json());
 app.use(cookieParser());
+
 app.use(cors({
     origin: true,
     credentials: true
 }));
-app.use(limiter);
 
 // Rotas
 
 app.use('/users', userRoutes);
-app.use('/auth', authRoutes);
+app.use('/auth', limiter, authRoutes);
 app.use('/messages', messageRoutes);
 app.use('/chats', chatRoutes);
 app.use('/friends', friendshipRoutes);
