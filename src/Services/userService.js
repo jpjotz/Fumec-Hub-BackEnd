@@ -49,7 +49,7 @@ async function getProfile(userId) {
         throw error;
     }
 
-    return {name: user.name, email: user.email, friendCode: user.friendCode}
+    return {id: user.id, name: user.name, email: user.email, friendCode: user.friendCode}
 }
 
 async function editProfile(userId, data) {
