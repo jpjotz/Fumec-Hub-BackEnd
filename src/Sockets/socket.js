@@ -132,13 +132,13 @@ function initializeSocket(server) {
             return;
         }
 
-        socket.on("message", (data) => {
+        socket.on("message", async (data) => {
             const message = JSON.parse(data.toString());
 
             switch (message.event) {
                 case "joinChat":
-                    joinChat(socket, message.chatId);
-                    getChatMessages(socket, message.chatId);
+                    await joinChat(socket, message.chatId);
+                    await getChatMessages(socket, message.chatId);
                     break;
 
                 case "sendMessage":
