@@ -10,13 +10,13 @@ async function joinChat(socket, chatId) {
     try {
         const chat = await Chat.findByPk(chatId);
 
-        if (!chat) {
-            return;
-        }
+        if (!chat) return;
 
         if (socket.userId !== chat.user1Id && socket.userId !== chat.user2Id) {
             return;
         }
+
+        leaveChat(socket);
 
         if (!rooms.has(chatId)) {
             rooms.set(chatId, new Set());
@@ -25,7 +25,7 @@ async function joinChat(socket, chatId) {
         rooms.get(chatId).add(socket);
 
         console.log(`Socket entrou no chat ${chatId}`);
-        console.log(rooms);
+
     } catch (error) {
         console.error("Erro ao entrar no chat: ", error);
     }
@@ -75,11 +75,6 @@ async function sendToRoom(socket, chatId, message) {
 }
 
 async function getChatMessages(socket, chatId) {
-    const chat = await Chat.findByPk(chatId);
-
-    if (!chat) {
-        return;
-    }
 
     const messages = await Message.findAll({
         where: {
