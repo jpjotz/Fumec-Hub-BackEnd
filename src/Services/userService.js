@@ -15,13 +15,20 @@ async function createUser(data) {
         }
     });
 
-    if(isRegistered) {
+    if (!email.endsWith('@fumec.edu.br')) {
+        const error = new Error("Use um e-mail institucional @fumec.edu.br");
+        error.statusCode = 400;
+        throw error;
+    }
+
+    if (isRegistered) {
         const error = new Error("E-mail já registrado!");
         error.statusCode = 409;
         throw error;
     }
 
-    if(password.length < 6) {
+
+    if (password.length < 6) {
         const error = new Error("Senha precisa ter mais de 6 caracteres!");
         error.statusCode = 400;
         throw error;
@@ -31,7 +38,7 @@ async function createUser(data) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({name, email, password: hashedPassword, friendCode});
+    const user = await User.create({ name, email, password: hashedPassword, friendCode });
 
     return user;
 }
@@ -43,18 +50,18 @@ async function getProfile(userId) {
         }
     });
 
-    if(!user) {
+    if (!user) {
         const error = new Error("Não autorizado");
         error.statusCode = 401;
         throw error;
     }
 
-    return {id: user.id, name: user.name, email: user.email, friendCode: user.friendCode}
+    return { id: user.id, name: user.name, email: user.email, friendCode: user.friendCode }
 }
 
 async function editProfile(userId, data) {
     const { name } = data;
-    
+
     const user = await User.findOne({
         where: {
             id: userId
@@ -72,8 +79,8 @@ async function editProfile(userId, data) {
 
     await user.save();
 
-    return {message: "Nome alterado com sucesso!"}
-    
+    return { message: "Nome alterado com sucesso!" }
+
 }
 
 async function changePassword(userId, data) {
@@ -92,13 +99,13 @@ async function changePassword(userId, data) {
 
     const isPasswordMatch = await bcrypt.compare(currentPassword, user.password);
 
-    if(!isPasswordMatch) {
+    if (!isPasswordMatch) {
         const error = new Error("Senha atual incorreta!");
         error.statusCode = 403;
         throw error;
     }
 
-    if(newPassword.length < 6) {
+    if (newPassword.length < 6) {
         const error = new Error("Senha precisa ter mais de 6 caracteres");
         error.statusCode = 400;
         throw error;
@@ -110,7 +117,7 @@ async function changePassword(userId, data) {
 
     await user.save();
 
-    return {message: "Senha alterada com sucesso!"}
+    return { message: "Senha alterada com sucesso!" }
 
 }
 
