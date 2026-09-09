@@ -50,7 +50,7 @@ function leaveAllChats(socket) {
     for (const [chatId, room] of rooms) {
         room.delete(socket);
 
-        if(room.size === 0) {
+        if (room.size === 0) {
             rooms.delete(chatId);
         }
     }
@@ -94,8 +94,12 @@ async function sendToRoom(socket, chatId, message) {
             content: newMessage.content
         };
 
-        sendToUser(otherUser, notification);
-        
+        const otherUserInChat = room?.some(clientSocket => clientSocket.userId === otherUser);
+
+        if (!otherUserInChat) {
+            sendToUser(otherUser, notification);
+        }
+
     } catch (error) {
         console.error("Erro ao enviar mensagem:", error);
     }
