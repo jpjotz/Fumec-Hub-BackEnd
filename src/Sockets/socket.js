@@ -163,6 +163,10 @@ function initializeSocket(server) {
                     await getChatMessages(socket, message.chatId);
                     break;
 
+                case 'leaveChat':
+                    leaveChat(socket);
+                    break;
+
                 case "sendMessage":
                     sendToRoom(socket, message.chatId, message);
                     break;
