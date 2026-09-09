@@ -6,7 +6,6 @@ const Message = require('../Models/Message');
 const rooms = new Map();
 
 async function joinChat(socket, chatId) {
-
     try {
         const chat = await Chat.findByPk(chatId);
 
@@ -24,6 +23,8 @@ async function joinChat(socket, chatId) {
 
         rooms.get(chatId).add(socket);
 
+        socket.currentChat = chatId;
+
         console.log(`Socket entrou no chat ${chatId}`);
 
     } catch (error) {
@@ -35,7 +36,6 @@ function leaveChat(socket) {
     for (const [chatId, room] of rooms) {
         if (room.has(socket)) {
             if (!chatId.startsWith('user:')) {
-
                 room.delete(socket);
             }
         }
@@ -44,6 +44,8 @@ function leaveChat(socket) {
             rooms.delete(chatId);
         }
     }
+
+    socket.currentChat = null;
 }
 
 function leaveAllChats(socket) {
@@ -54,14 +56,20 @@ function leaveAllChats(socket) {
             rooms.delete(chatId);
         }
     }
+
+    socket.currentChat = null;
 }
 
 async function sendToRoom(socket, chatId, message) {
     try {
-
         const chat = await Chat.findByPk(chatId);
 
-        const otherUser = chat.user1Id === socket.userId ? chat.user2Id : chat.user1Id;
+        if (!chat) return;
+
+        const otherUser =
+            chat.user1Id === socket.userId
+                ? chat.user2Id
+                : chat.user1Id;
 
         const room = rooms.get(chatId);
 
@@ -81,7 +89,7 @@ async function sendToRoom(socket, chatId, message) {
             chatId: newMessage.chatId,
             senderId: newMessage.senderId,
             content: newMessage.content
-        }
+        };
 
         for (const clientSocket of room) {
             clientSocket.send(JSON.stringify(messageToSend));
@@ -94,7 +102,10 @@ async function sendToRoom(socket, chatId, message) {
             content: newMessage.content
         };
 
-        const otherUserInChat = room?.some(clientSocket => clientSocket.userId === otherUser);
+        const otherUserRoom = rooms.get(`user:${otherUser}`);
+
+        const otherUserInChat = [...(otherUserRoom || [])]
+            .some(clientSocket => clientSocket.currentChat === chatId);
 
         if (!otherUserInChat) {
             sendToUser(otherUser, notification);
@@ -106,7 +117,6 @@ async function sendToRoom(socket, chatId, message) {
 }
 
 async function getChatMessages(socket, chatId) {
-
     const messages = await Message.findAll({
         where: {
             chatId
@@ -114,7 +124,6 @@ async function getChatMessages(socket, chatId) {
     });
 
     socket.send(JSON.stringify(messages));
-
 }
 
 function joinUserRoom(socket) {
@@ -145,14 +154,22 @@ function initializeSocket(server) {
 
         const cookies = req.headers.cookie;
 
-        const accessToken = cookies?.split("; ").find(cookie => cookie.startsWith("accessToken"))?.split('=')[1];
+        const accessToken = cookies
+            ?.split("; ")
+            .find(cookie => cookie.startsWith("accessToken"))
+            ?.split('=')[1];
 
         try {
-            const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
+            const decoded = jwt.verify(
+                accessToken,
+                process.env.JWT_SECRET
+            );
 
             socket.userId = decoded.id;
+            socket.currentChat = null;
 
             joinUserRoom(socket);
+
         } catch (error) {
             socket.close();
             return;
@@ -162,12 +179,13 @@ function initializeSocket(server) {
             const message = JSON.parse(data.toString());
 
             switch (message.event) {
+
                 case "joinChat":
                     await joinChat(socket, message.chatId);
                     await getChatMessages(socket, message.chatId);
                     break;
 
-                case 'leaveChat':
+                case "leaveChat":
                     leaveChat(socket);
                     break;
 
@@ -178,10 +196,13 @@ function initializeSocket(server) {
         });
 
         socket.on('close', () => {
-            leaveAllChats(socket)
+            leaveAllChats(socket);
             console.log("Cliente desconectado");
         });
     });
 }
 
-module.exports = { initializeSocket, sendToUser };
+module.exports = {
+    initializeSocket,
+    sendToUser
+};
