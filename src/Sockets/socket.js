@@ -34,7 +34,10 @@ async function joinChat(socket, chatId) {
 function leaveChat(socket) {
     for (const [chatId, room] of rooms) {
         if (room.has(socket)) {
-            room.delete(socket);
+            if (!chatId.startsWith('user:')) {
+
+                room.delete(socket);
+            }
         }
 
         if (room.size === 0) {
@@ -43,8 +46,23 @@ function leaveChat(socket) {
     }
 }
 
+function leaveAllChats(socket) {
+    for (const [chatId, room] of rooms) {
+        room.delete(socket);
+
+        if(room.size === 0) {
+            rooms.delete(chatId);
+        }
+    }
+}
+
 async function sendToRoom(socket, chatId, message) {
     try {
+
+        const chat = await Chat.findByPk(chatId);
+
+        const otherUser = chat.user1Id === socket.userId ? chat.user2Id : chat.user1Id;
+
         const room = rooms.get(chatId);
 
         if (!room || !room.has(socket)) {
@@ -67,8 +85,17 @@ async function sendToRoom(socket, chatId, message) {
 
         for (const clientSocket of room) {
             clientSocket.send(JSON.stringify(messageToSend));
-
         }
+
+        const notification = {
+            event: 'newMessageNotification',
+            chatId: newMessage.chatId,
+            senderId: newMessage.senderId,
+            content: newMessage.content
+        };
+
+        sendToUser(otherUser, notification);
+        
     } catch (error) {
         console.error("Erro ao enviar mensagem:", error);
     }
@@ -143,7 +170,7 @@ function initializeSocket(server) {
         });
 
         socket.on('close', () => {
-            leaveChat(socket);
+            leaveAllChats(socket)
             console.log("Cliente desconectado");
         });
     });
