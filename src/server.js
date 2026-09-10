@@ -48,6 +48,10 @@ app.use(cors({
 
 // Rotas
 
+app.get('/health', (req, res) => {
+    res.sendStatus(200);
+});
+
 app.use('/users', userRoutes);
 app.use('/auth', limiter, authRoutes);
 app.use('/messages', messageRoutes);
