@@ -6,13 +6,13 @@ async function login(req, res, next) {
         res.cookie('accessToken', tokens.accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: "lax",
+            sameSite: "none",
             maxAge: 15 * 60 * 1000
         });
         res.cookie('refreshToken', tokens.refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: "lax",
+            sameSite: "none",
             maxAge: 7 * 24 * 60 * 60 * 1000
         });
 
@@ -32,7 +32,7 @@ function refreshToken(req, res, next) {
         res.cookie('accessToken', newAccessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: "lax",
+            sameSite: "none",
             maxAge: 15 * 60 * 1000
         });
 
@@ -48,11 +48,11 @@ function refreshToken(req, res, next) {
 function logout(req, res) {
     res.clearCookie('accessToken', {
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'none',
     });
     res.clearCookie('refreshToken', {
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        sameSite: 'none',
     });
 
     res.status(200).json({
