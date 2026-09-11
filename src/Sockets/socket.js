@@ -160,9 +160,6 @@ function initializeSocket(server) {
             ?.split('=')[1];
 
         const queryParams = new URLSearchParams(req.url.split('?')[1]);
-        if (!accessToken && queryParams.has('token')) {
-            accessToken = queryParams.get('token');
-        }
 
         const directUserId = queryParams.get('userId');
 
