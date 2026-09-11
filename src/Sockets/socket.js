@@ -1,6 +1,6 @@
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
-const url = require('url'); // Módulo nativo do Node.js
+const url = require('url');
 const Chat = require('../Models/Chat');
 const Message = require('../Models/Message');
 
@@ -153,28 +153,21 @@ function initializeSocket(server) {
     wss.on('connection', (socket, req) => {
         console.log('Cliente tentando conectar ao WS...');
 
-        // 1. Tenta pegar dos cookies
         const cookies = req.headers.cookie;
         let accessToken = cookies
             ?.split("; ")
             .find(cookie => cookie.startsWith("accessToken"))
             ?.split('=')[1];
 
-        // 2. Se não veio nos cookies (cenário Vercel), pega dos query params da URL
-        const queryParams = url.parse(req.url, true).query;
-        if (!accessToken && queryParams.token) {
-            accessToken = queryParams.token;
+        const queryParams = new URLSearchParams(req.url.split('?')[1]);
+        if (!accessToken && queryParams.has('token')) {
+            accessToken = queryParams.get('token');
         }
-
-        // Se passar apenas o userId na URL (alternativa caso use userId direto)
-        const directUserId = queryParams.userId;
 
         try {
             if (accessToken) {
                 const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
                 socket.userId = decoded.id;
-            } else if (directUserId) {
-                socket.userId = directUserId;
             } else {
                 throw new Error("Nenhum token ou userId fornecido");
             }
@@ -186,7 +179,7 @@ function initializeSocket(server) {
 
         } catch (error) {
             console.error("Falha na autenticação do WebSocket:", error.message);
-            socket.close(); // Fecha se realmente não tiver identificação válida
+            socket.close();
             return;
         }
 
