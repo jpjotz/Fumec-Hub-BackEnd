@@ -164,10 +164,14 @@ function initializeSocket(server) {
             accessToken = queryParams.get('token');
         }
 
+        const directUserId = queryParams.get('userId');
+
         try {
             if (accessToken) {
                 const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
                 socket.userId = decoded.id;
+            } else if (directUserId) {
+                socket.userId = directUserId;
             } else {
                 throw new Error("Nenhum token ou userId fornecido");
             }
