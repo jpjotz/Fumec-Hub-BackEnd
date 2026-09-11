@@ -1,5 +1,6 @@
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
+const url = require('url'); // Módulo nativo do Node.js
 const Chat = require('../Models/Chat');
 const Message = require('../Models/Message');
 
@@ -150,48 +151,65 @@ function initializeSocket(server) {
     const wss = new WebSocket.Server({ server });
 
     wss.on('connection', (socket, req) => {
-        console.log('Cliente conectado');
+        console.log('Cliente tentando conectar ao WS...');
 
+        // 1. Tenta pegar dos cookies
         const cookies = req.headers.cookie;
-
-        const accessToken = cookies
+        let accessToken = cookies
             ?.split("; ")
             .find(cookie => cookie.startsWith("accessToken"))
             ?.split('=')[1];
 
+        // 2. Se não veio nos cookies (cenário Vercel), pega dos query params da URL
+        const queryParams = url.parse(req.url, true).query;
+        if (!accessToken && queryParams.token) {
+            accessToken = queryParams.token;
+        }
+
+        // Se passar apenas o userId na URL (alternativa caso use userId direto)
+        const directUserId = queryParams.userId;
+
         try {
-            const decoded = jwt.verify(
-                accessToken,
-                process.env.JWT_SECRET
-            );
+            if (accessToken) {
+                const decoded = jwt.verify(accessToken, process.env.JWT_SECRET);
+                socket.userId = decoded.id;
+            } else if (directUserId) {
+                socket.userId = directUserId;
+            } else {
+                throw new Error("Nenhum token ou userId fornecido");
+            }
 
-            socket.userId = decoded.id;
             socket.currentChat = null;
-
             joinUserRoom(socket);
 
+            console.log(`Cliente conectado e autenticado! UserID: ${socket.userId}`);
+
         } catch (error) {
-            socket.close();
+            console.error("Falha na autenticação do WebSocket:", error.message);
+            socket.close(); // Fecha se realmente não tiver identificação válida
             return;
         }
 
         socket.on("message", async (data) => {
-            const message = JSON.parse(data.toString());
+            try {
+                const message = JSON.parse(data.toString());
 
-            switch (message.event) {
+                switch (message.event) {
+                    case "joinChat":
+                        await joinChat(socket, message.chatId);
+                        await getChatMessages(socket, message.chatId);
+                        break;
 
-                case "joinChat":
-                    await joinChat(socket, message.chatId);
-                    await getChatMessages(socket, message.chatId);
-                    break;
+                    case "leaveChat":
+                        leaveChat(socket);
+                        break;
 
-                case "leaveChat":
-                    leaveChat(socket);
-                    break;
-
-                case "sendMessage":
-                    sendToRoom(socket, message.chatId, message);
-                    break;
+                    case "sendMessage":
+                        sendToRoom(socket, message.chatId, message);
+                        break;
+                }
+            } catch (err) {
+                console.error("Erro ao processar mensagem recebida:", err);
             }
         });
 
