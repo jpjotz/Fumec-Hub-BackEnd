@@ -8,10 +8,13 @@ const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
+const swaggerUI = require('swagger-ui-express');
+const swaggerSpec = require('./swagger');
 const sequelize = require('./Config/database');
 const errorHandler = require('./Middlewares/errorHandler');
 const http = require('http');
-const {initializeSocket} = require('./Sockets/socket');
+const path = require('path');
+const { initializeSocket } = require('./Sockets/socket');
 
 const userRoutes = require('./Routes/user.routes');
 const authRoutes = require('./Routes/auth.routes');
@@ -40,6 +43,7 @@ initializeSocket(server);
 
 app.use(express.json());
 app.use(cookieParser());
+app.use('/Config', express.static(path.join(__dirname, 'Config')));
 
 app.use(cors({
     origin: true,
@@ -51,6 +55,15 @@ app.use(cors({
 app.get('/health', (req, res) => {
     res.sendStatus(200);
 });
+
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec, {
+    customSiteTitle: "Fumec Hub API",
+    customfavIcon: "/Config/favicon.png"
+}));
+
+app.get('/', (req, res) => {
+    res.redirect('/api-docs');
+})
 
 app.use('/users', userRoutes);
 app.use('/auth', limiter, authRoutes);
