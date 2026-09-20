@@ -114,6 +114,11 @@ async function acceptFriendRequest(userId, friendshipId) {
         user1Id: requestExists.user1Id,
         user2Id: requestExists.user2Id
 
+    });
+
+    sendToUser(requestExists.user1Id, {
+        event: 'newChat',
+        chat
     })
 
     return { message: "Solicitação de amizade aceita!" }
