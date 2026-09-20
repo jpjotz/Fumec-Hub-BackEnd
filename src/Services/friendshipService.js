@@ -54,7 +54,11 @@ async function sendFriendRequest(userId, friendCode) {
                     user1Id: friend.id,
                     user2Id: userId
                 }
-            ]
+            ],
+
+            status: {
+                [Op.in]: ['pending', 'accepted']
+            }
         }
     });
 
