@@ -115,11 +115,11 @@ async function acceptFriendRequest(userId, friendshipId) {
         user2Id: requestExists.user2Id
     });
 
-    const otherUser = await User.findByPk(requestExists.user1Id, {
+    const otherUser = await User.findByPk(requestExists.user2Id, {
         attributes: ['id', 'name']
     });
 
-    const currentUser = await User.findByPk(requestExists.user2Id, {
+    const currentUser = await User.findByPk(requestExists.user1Id, {
         attributes: ['id', 'name']
     });
 
