@@ -113,12 +113,18 @@ async function acceptFriendRequest(userId, friendshipId) {
     const chat = await Chat.create({
         user1Id: requestExists.user1Id,
         user2Id: requestExists.user2Id
-
     });
+
+    const otherUser = await User.findByPk(requestExists.user1Id, {
+        attributes: ['id', 'name']
+    })
 
     sendToUser(requestExists.user1Id, {
         event: 'newChat',
-        chat
+        chat: {
+            id: chat.id,
+            otherUser
+        }
     })
 
     return { message: "Solicitação de amizade aceita!" }
