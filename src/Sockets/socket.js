@@ -1,6 +1,5 @@
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
-const url = require('url');
 const Chat = require('../Models/Chat');
 const Message = require('../Models/Message');
 
