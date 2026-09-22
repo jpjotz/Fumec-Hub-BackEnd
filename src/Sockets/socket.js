@@ -147,6 +147,21 @@ function sendToUser(userId, message) {
     }
 }
 
+async function sendTyping(socket, chatId) {
+    const chat = await Chat.findByPk(chatId);
+    
+    if (!chat) {
+        return;
+    }
+
+    const otherUser = chat.user1Id === socket.userId ? chat.user2Id : chat.user1Id;
+
+    sendToUser(otherUser, {
+        event: 'typing',
+        chatId: chatId
+    });
+}
+
 function initializeSocket(server) {
     const wss = new WebSocket.Server({ server });
 
@@ -203,7 +218,7 @@ function initializeSocket(server) {
                         break;
 
                     case "typing":
-                        console.log('usuario digitando', socket.userId, message.chatId);
+                        sendTyping(socket, message.chatId);
                         break;
                 }
             } catch (err) {
