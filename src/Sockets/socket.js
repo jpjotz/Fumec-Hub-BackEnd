@@ -201,6 +201,10 @@ function initializeSocket(server) {
                     case "sendMessage":
                         sendToRoom(socket, message.chatId, message);
                         break;
+
+                    case "typing":
+                        console.log('usuario digitando', socket.userId);
+                        break;
                 }
             } catch (err) {
                 console.error("Erro ao processar mensagem recebida:", err);
