@@ -203,7 +203,7 @@ function initializeSocket(server) {
                         break;
 
                     case "typing":
-                        console.log('usuario digitando', socket.userId);
+                        console.log('usuario digitando', socket.userId, message.chatId);
                         break;
                 }
             } catch (err) {
