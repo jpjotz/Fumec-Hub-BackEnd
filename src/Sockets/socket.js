@@ -161,6 +161,18 @@ async function sendTyping(socket, chatId) {
     });
 }
 
+async function sendStopTyping(socket, chatId) {
+    const chat = await Chat.findByPk(chatId);
+    if(!chat) return;
+
+    const otherUser = chat.user1Id === socket.userId ? chat.user2Id : chat.user1Id;
+
+    sendToUser(otherUser, {
+        event: 'stopTyping',
+        chatId: chatId
+    });
+}
+
 function initializeSocket(server) {
     const wss = new WebSocket.Server({ server });
 
@@ -218,6 +230,10 @@ function initializeSocket(server) {
 
                     case "typing":
                         sendTyping(socket, message.chatId);
+                        break;
+
+                    case 'stopTyping':
+                        sendStopTyping(socket, message.chatId);
                         break;
                 }
             } catch (err) {
