@@ -149,7 +149,7 @@ function sendToUser(userId, message) {
 
 async function sendTyping(socket, chatId) {
     const chat = await Chat.findByPk(chatId);
-    
+
     if (!chat) {
         return;
     }
@@ -164,7 +164,7 @@ async function sendTyping(socket, chatId) {
 
 async function sendStopTyping(socket, chatId) {
     const chat = await Chat.findByPk(chatId);
-    if(!chat) return;
+    if (!chat) return;
 
     const otherUser = chat.user1Id === socket.userId ? chat.user2Id : chat.user1Id;
 
@@ -184,8 +184,8 @@ async function notifyOnline(userId) {
     const chats = await Chat.findAll({
         where: {
             [Op.or]: [
-                {user1Id: userId},
-                {user2Id: userId}
+                { user1Id: userId },
+                { user2Id: userId }
             ]
         }
     });
@@ -195,6 +195,26 @@ async function notifyOnline(userId) {
 
         sendToUser(otherUser, {
             event: 'userOnline',
+            userId: userId
+        })
+    }
+}
+
+async function notifyOffline(userId) {
+    const chats = await Chat.findAll({
+        where: {
+            [Op.or]: [
+                { user1Id: userId },
+                { user2Id: userId }
+            ]
+        }
+    });
+
+    for (const chat of chats) {
+        const otherUser = chat.user1Id === userId ? chat.user2Id : chat.user1Id;
+
+        sendToUser(otherUser, {
+            event: 'userOffline',
             userId: userId
         })
     }
@@ -270,7 +290,8 @@ function initializeSocket(server) {
             }
         });
 
-        socket.on('close', () => {
+        socket.on('close', async () => {
+            await notifyOffline(socket.userId);
             leaveAllChats(socket);
             console.log("Cliente desconectado");
         });
