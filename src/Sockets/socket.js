@@ -2,6 +2,7 @@ const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
 const Chat = require('../Models/Chat');
 const Message = require('../Models/Message');
+const { Op } = require('sequelize');
 
 const rooms = new Map();
 
@@ -173,10 +174,36 @@ async function sendStopTyping(socket, chatId) {
     });
 }
 
+function checkOnline(userId) {
+    const userRoom = rooms.get(`user:${userId}`);
+
+    return userRoom && userRoom.size > 0;
+}
+
+async function notifyOnline(userId) {
+    const chats = await Chat.findAll({
+        where: {
+            [Op.or]: [
+                {user1Id: userId},
+                {user2Id: userId}
+            ]
+        }
+    });
+
+    for (const chat of chats) {
+        const otherUser = chat.user1Id === userId ? chat.user2Id : chat.user1Id;
+
+        sendToUser(otherUser, {
+            event: 'userOnline',
+            userId: userId
+        })
+    }
+}
+
 function initializeSocket(server) {
     const wss = new WebSocket.Server({ server });
 
-    wss.on('connection', (socket, req) => {
+    wss.on('connection', async (socket, req) => {
         console.log('Cliente tentando conectar ao WS...');
 
         const cookies = req.headers.cookie;
@@ -201,6 +228,8 @@ function initializeSocket(server) {
 
             socket.currentChat = null;
             joinUserRoom(socket);
+
+            await notifyOnline(socket.userId);
 
             console.log(`Cliente conectado e autenticado! UserID: ${socket.userId}`);
 
