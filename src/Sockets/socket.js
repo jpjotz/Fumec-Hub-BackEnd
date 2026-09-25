@@ -28,6 +28,18 @@ async function joinChat(socket, chatId) {
 
         console.log(`Socket entrou no chat ${chatId}`);
 
+        const otherUser =
+            chat.user1Id === socket.userId
+                ? chat.user2Id
+                : chat.user1Id;
+
+        if (checkOnline(otherUser)) {
+            sendToUser(socket.userId, {
+                event: 'userOnline',
+                userId: otherUser
+            });
+        }
+
     } catch (error) {
         console.error("Erro ao entrar no chat: ", error);
     }
