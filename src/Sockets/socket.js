@@ -303,8 +303,8 @@ function initializeSocket(server) {
         });
 
         socket.on('close', async () => {
-            await notifyOffline(socket.userId);
             leaveAllChats(socket);
+            await notifyOffline(socket.userId);
             console.log("Cliente desconectado");
         });
     });
