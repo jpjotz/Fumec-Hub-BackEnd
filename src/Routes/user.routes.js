@@ -3,7 +3,7 @@ const router = express.Router();
 
 const authMiddleware = require('../Middlewares/authMiddleware');
 
-const { createUser, getProfile, editProfile, changePassword } = require('../Controllers/userController');
+const { createUser, getProfile, editProfile, changePassword, deleteUser } = require('../Controllers/userController');
 
 /**
  * @swagger
@@ -137,5 +137,42 @@ router.patch('/me', authMiddleware, editProfile);
  */
 
 router.patch('/me/password', authMiddleware, changePassword);
+
+/**
+ * @swagger
+ * /users/me:
+ *   delete:
+ *     summary: Exclui a conta do usuário autenticado
+ *     tags: [Usuários]
+ *     parameters:
+ *       - in: cookie
+ *         name: accessToken
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 format: password
+ *     responses:
+ *       200:
+ *         description: Usuário deletado com sucesso
+ *       401:
+ *         description: Usuário não autenticado ou token inválido
+ *       403:
+ *         description: Senha atual incorreta
+ *       404:
+ *         description: Usuário não encontrado
+ */
+
+router.delete('/me', authMiddleware, deleteUser);
 
 module.exports = router;

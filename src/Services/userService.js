@@ -1,5 +1,9 @@
 const User = require('../Models/User');
+const Friendship = require('../Models/Friendship');
+const Message = require('../Models/Message');
+const Chat = require('../Models/Chat');
 const bcrypt = require('bcrypt');
+const { Op } = require('sequelize');
 
 async function createUser(data) {
     const { name, email, password } = data
@@ -121,4 +125,62 @@ async function changePassword(userId, data) {
 
 }
 
-module.exports = { createUser, getProfile, editProfile, changePassword }
+async function deleteAccount(userId, data) {
+    const user = await User.findByPk(userId);
+    const { password } = data;
+
+    if (!user) {
+        const error = new Error("Usuário não encontrado");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+        const error = new Error("Senha atual incorreta!");
+        error.statusCode = 403;
+        throw error;
+    }
+
+    const messages = await Message.findAll({
+        where: {
+            senderId: userId
+        }
+    });
+
+    for(const message of messages) {
+        await message.destroy();
+    }
+
+    const chats = await Chat.findAll({
+        where: {
+            [Op.or]: [
+                { user1Id: userId }, { user2Id: userId }
+            ]
+        }
+    });
+
+    for (const chat of chats) {
+        await chat.destroy();
+    }
+
+    const friendships = await Friendship.findAll({
+        where: {
+            [Op.or]: [
+                { user1Id: userId }, { user2Id: userId }
+            ]
+        }
+    });
+
+    for(const friendship of friendships) {
+        await friendship.destroy();
+    }
+
+    await user.destroy();
+
+    return {message: "Usuário deletado com sucesso!"}
+
+}
+
+module.exports = { createUser, getProfile, editProfile, changePassword, deleteAccount }

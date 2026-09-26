@@ -13,7 +13,7 @@ async function createUser(req, res, next) {
             sameSite: "none",
             maxAge: 15 * 60 * 1000
         });
-        
+
         res.cookie('refreshToken', tokens.refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -73,4 +73,27 @@ async function changePassword(req, res, next) {
     }
 }
 
-module.exports = { createUser, getProfile, editProfile, changePassword }
+async function deleteUser(req, res, next) {
+    try {
+        const data = req.body;
+        const userId = req.user.id;
+
+        const result = await userService.deleteAccount(userId, data);
+
+        res.clearCookie('accessToken', {
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        });
+
+        res.clearCookie('refreshToken', {
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        });
+
+        return res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+}
+
+module.exports = { createUser, getProfile, editProfile, changePassword, deleteUser }
