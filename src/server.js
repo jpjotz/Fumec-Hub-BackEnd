@@ -11,6 +11,7 @@ const rateLimit = require('express-rate-limit');
 const swaggerUI = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 const sequelize = require('./Config/database');
+require('./Models/associations');
 const errorHandler = require('./Middlewares/errorHandler');
 const http = require('http');
 const path = require('path');

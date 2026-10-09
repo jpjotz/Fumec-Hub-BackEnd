@@ -24,6 +24,11 @@ const User = sequelize.define('User', {
         allowNull: false
     },
 
+    courseId: {
+        type: DataTypes.UUID,
+        allowNull: false
+    },
+
     friendCode: {
         type: DataTypes.STRING,
         allowNull: false,
