@@ -1,6 +1,7 @@
 const Chat = require('../Models/Chat');
 const { Op } = require('sequelize');
 const User = require('../Models/User');
+const Course = require('../Models/Course');
 
 async function createChat(data) {
     const { user1Id, user2Id } = data;
@@ -28,12 +29,20 @@ async function getChatsByUser(userId) {
             {
                 model: User,
                 as: 'user1',
-                attributes: ['id', 'name']
+                attributes: ['id', 'name'],
+                include: [{
+                    model: Course,
+                    attributes: ['id', 'name']
+                }]
             },
             {
                 model: User,
                 as: 'user2',
-                attributes: ['id', 'name']
+                attributes: ['id', 'name'],
+                include: [{
+                    model: Course,
+                    attributes: ['id', 'name']
+                }]
             }
         ]
     });
