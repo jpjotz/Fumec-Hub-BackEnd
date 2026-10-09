@@ -1,3 +1,4 @@
+require('dotenv').config();
 const Course = require('../Models/Course');
 
 async function seedCourses() {
