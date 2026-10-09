@@ -22,6 +22,7 @@ const authRoutes = require('./Routes/auth.routes');
 const messageRoutes = require('./Routes/message.routes');
 const chatRoutes = require('./Routes/chat.routes');
 const friendshipRoutes = require('./Routes/friendship.routes');
+const courseRoutes = require('./Routes/course.routes');
 
 // Variáveis
 
@@ -71,6 +72,7 @@ app.use('/auth', limiter, authRoutes);
 app.use('/messages', messageRoutes);
 app.use('/chats', chatRoutes);
 app.use('/friends', friendshipRoutes);
+app.use('/courses', courseRoutes);
 
 // Error Handler
 
