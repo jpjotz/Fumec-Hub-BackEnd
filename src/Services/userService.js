@@ -2,12 +2,13 @@ const User = require('../Models/User');
 const Friendship = require('../Models/Friendship');
 const Message = require('../Models/Message');
 const Chat = require('../Models/Chat');
+const Course = require('../Models/Course');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 
 async function createUser(data) {
-    const { name, email, password } = data
-    if (!name || !email || !password) {
+    const { name, email, password, courseId } = data
+    if (!name || !email || !password || !courseId) {
         const error = new Error("Dados obrigatórios ausentes");
         error.statusCode = 400;
         throw error;
@@ -38,11 +39,19 @@ async function createUser(data) {
         throw error;
     }
 
+    const courseExists = await Course.findByPk(courseId);
+
+    if (!courseExists) {
+        const error = new Error("Curso inexistente!");
+        error.statusCode = 400;
+        throw error;
+    }
+
     const friendCode = email.split("@")[0].substring(1);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({ name, email, password: hashedPassword, friendCode });
+    const user = await User.create({ name, email, password: hashedPassword, friendCode, courseId });
 
     return user;
 }
@@ -50,8 +59,8 @@ async function createUser(data) {
 async function getProfile(userId) {
     const user = await User.findOne({
         where: {
-            id: userId
-        }
+            id: userId,
+        }, include: [Course]
     });
 
     if (!user) {
@@ -60,7 +69,7 @@ async function getProfile(userId) {
         throw error;
     }
 
-    return { id: user.id, name: user.name, email: user.email, friendCode: user.friendCode }
+    return { id: user.id, name: user.name, email: user.email, friendCode: user.friendCode, course: user.Course }
 }
 
 async function editProfile(userId, data) {
@@ -149,7 +158,7 @@ async function deleteAccount(userId, data) {
         }
     });
 
-    for(const message of messages) {
+    for (const message of messages) {
         await message.destroy();
     }
 
@@ -173,13 +182,13 @@ async function deleteAccount(userId, data) {
         }
     });
 
-    for(const friendship of friendships) {
+    for (const friendship of friendships) {
         await friendship.destroy();
     }
 
     await user.destroy();
 
-    return {message: "Usuário deletado com sucesso!"}
+    return { message: "Usuário deletado com sucesso!" }
 
 }
 
