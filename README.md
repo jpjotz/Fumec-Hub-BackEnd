@@ -144,7 +144,7 @@ Fumec-Hub-BackEnd/
 > A estrutura pode evoluir conforme novas funcionalidades forem adicionadas ao projeto.
 
 ---
-<a id="autenticação"></a>
+<a id="autenticacao"></a>
 ## 🔐 Autenticação
 
 A autenticação da aplicação utiliza **JWT (JSON Web Token)** armazenado em cookies HTTP.
@@ -187,7 +187,7 @@ JWT
 As rotas protegidas utilizam um middleware responsável por verificar a autenticação do usuário.
 
 ---
-<a id="comunicação-em-tempo-real"></a>
+<a id="comunicacao-em-tempo-real"></a>
 ## 💬 Comunicação em tempo real
 
 O Fumec Hub utiliza **WebSocket** para funcionalidades que precisam de comunicação em tempo real.
