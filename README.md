@@ -30,7 +30,7 @@ O sistema fornece autenticação, gerenciamento de usuários e amizades, chats, 
 * [🌱 Fluxo de desenvolvimento](#fluxo-de-desenvolvimento)
 
 ---
-
+<a id="sobre-o-projeto"></a>
 ## 🧠 Sobre o projeto
 
 O **Fumec Hub Back-End** é responsável por fornecer a API e toda a lógica de negócio utilizada pelo Front-End da aplicação.
@@ -50,7 +50,7 @@ Entre suas principais funcionalidades estão:
 O projeto foi desenvolvido utilizando uma arquitetura organizada em **rotas, controllers, services, models e middlewares**, buscando manter as responsabilidades separadas e facilitar a manutenção da aplicação.
 
 ---
-
+<a id="tecnologias-utilizadas"></a>
 ## ⚙️ Tecnologias utilizadas
 
 ### Back-End
@@ -90,7 +90,7 @@ O projeto foi desenvolvido utilizando uma arquitetura organizada em **rotas, con
 * **Visual Studio Code**
 
 ---
-
+<a id="arquitetura"></a>
 ## 🏗️ Arquitetura
 
 O projeto utiliza uma estrutura organizada por responsabilidades:
@@ -144,7 +144,7 @@ Fumec-Hub-BackEnd/
 > A estrutura pode evoluir conforme novas funcionalidades forem adicionadas ao projeto.
 
 ---
-
+<a id="autenticação"></a>
 ## 🔐 Autenticação
 
 A autenticação da aplicação utiliza **JWT (JSON Web Token)** armazenado em cookies HTTP.
@@ -187,7 +187,7 @@ JWT
 As rotas protegidas utilizam um middleware responsável por verificar a autenticação do usuário.
 
 ---
-
+<a id="comunicação-em-tempo-real"></a>
 ## 💬 Comunicação em tempo real
 
 O Fumec Hub utiliza **WebSocket** para funcionalidades que precisam de comunicação em tempo real.
@@ -203,7 +203,7 @@ Atualmente, o WebSocket é utilizado principalmente para:
 As mensagens também são persistidas no PostgreSQL, permitindo que o histórico continue disponível mesmo após o usuário se desconectar.
 
 ---
-
+<a id="documentacao-da-api"></a>
 ## 📚 Documentação da API
 
 A API possui documentação utilizando **Swagger/OpenAPI**.
@@ -217,7 +217,7 @@ Após iniciar o servidor, a documentação pode ser acessada através de:
 A documentação permite visualizar e testar os endpoints disponibilizados pela API.
 
 ---
-
+<a id="deploy"></a>
 ## 🚀 Deploy
 
 O Back-End está hospedado utilizando o **Render**.
@@ -231,7 +231,7 @@ https://fumec-hub-backend.onrender.com/
 O banco PostgreSQL utilizado pela aplicação é hospedado através do **Supabase**.
 
 ---
-
+<a id="como-rodar-o-projeto"></a>
 ## 🚀 Como rodar o projeto
 
 ### 1. Clone o repositório
@@ -286,7 +286,7 @@ npm start
 O servidor será iniciado na porta configurada no arquivo `.env`.
 
 ---
-
+<a id="fluxo-de-desenvolvimento"></a>
 ## 🌱 Fluxo de desenvolvimento
 
 O projeto utiliza um fluxo de Git simplificado:
