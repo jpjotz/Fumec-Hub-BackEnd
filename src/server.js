@@ -27,7 +27,16 @@ const courseRoutes = require('./Routes/course.routes');
 // Variáveis
 
 const app = express();
-app.set('trust proxy', 2);
+app.use((req, res, next) => {
+    const forwardedFor = req.headers['x-forwarded-for'];
+
+    if (forwardedFor) {
+        req.ip = forwardedFor.split(',')[0].trim();
+    }
+
+    next();
+});
+
 const PORT = process.env.PORT || 3000;
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000,
