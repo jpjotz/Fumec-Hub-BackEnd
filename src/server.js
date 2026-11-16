@@ -27,12 +27,15 @@ const courseRoutes = require('./Routes/course.routes');
 // Variáveis
 
 const app = express();
+app.set('trust proxy', 2);
 const PORT = process.env.PORT || 3000;
 const limiter = rateLimit({
     windowMs: 60 * 60 * 1000,
     limit: 100,
     statusCode: 429,
-    message: "Muitas requisições, favor aguardar"
+    message: "Muitas requisições, favor aguardar",
+    standardHeaders: true,
+    legacyHeaders: false
 });
 
 // Web Socket
@@ -53,6 +56,13 @@ app.use(cors({
 }));
 
 // Rotas
+
+app.get('/debug-ip', (req, res) => {
+    res.json({
+        ip: req.ip,
+        forwardedFor: req.headers['x-forwarded-for']
+    });
+});
 
 app.get('/health', (req, res) => {
     res.sendStatus(200);
