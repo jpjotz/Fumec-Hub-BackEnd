@@ -66,13 +66,6 @@ app.use(cors({
 
 // Rotas
 
-app.get('/debug-ip', (req, res) => {
-    res.json({
-        ip: req.ip,
-        forwardedFor: req.headers['x-forwarded-for']
-    });
-});
-
 app.get('/health', (req, res) => {
     res.sendStatus(200);
 });
