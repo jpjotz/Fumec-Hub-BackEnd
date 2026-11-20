@@ -223,6 +223,16 @@ async function deleteFriendship(userId, friendshipId) {
 
     await friendship.destroy();
 
+    sendToUser(friendship.user1Id, {
+        event: "friendshipDeleted",
+        friendshipId
+    });
+
+    sendToUser(friendship.user2Id, {
+        event: "friendshipDeleted",
+        friendshipId
+    });
+
     return { message: "Amizade excluída com sucesso!" };
 }
 
