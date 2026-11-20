@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../Config/database');
 const User = require('./User');
+const Friendship = require('./Friendship');
 
 const chat = sequelize.define("Chat", {
     id: {
@@ -44,6 +45,11 @@ chat.belongsTo(User, {
 chat.belongsTo(User, {
     foreignKey: "user2Id",
     as: 'user2'
+});
+
+chat.belongsTo(Friendship, {
+    foreignKey: "friendshipId",
+    as: "friendship"
 });
 
 module.exports = chat;
