@@ -51,4 +51,17 @@ async function rejectFriendRequest(req, res, next) {
     }
 }
 
-module.exports = { sendFriendRequest, acceptFriendRequest, getFriendshipRequests, rejectFriendRequest }
+async function deleteFriendship(req, res, next) {
+    try {
+        const userId = req.user.id;
+        const { friendshipId } = req.params;
+
+        const result = await friendshipService.deleteFriendship(userId, friendshipId);
+
+        return res.status(200).json(result);
+    } catch (error) {
+        next(error);
+    }
+}
+
+module.exports = { sendFriendRequest, acceptFriendRequest, getFriendshipRequests, rejectFriendRequest, deleteFriendship }

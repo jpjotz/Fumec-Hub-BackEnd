@@ -6,7 +6,8 @@ const {
     sendFriendRequest,
     acceptFriendRequest,
     getFriendshipRequests,
-    rejectFriendRequest
+    rejectFriendRequest,
+    deleteFriendship
 } = require('../Controllers/friendshipController');
 
 const authMiddleware = require('../Middlewares/authMiddleware');
@@ -132,5 +133,35 @@ router.patch("/accept/:friendshipId", acceptFriendRequest);
  *         description: Pedido de amizade não está pendente
  */
 router.patch("/reject/:friendshipId", rejectFriendRequest);
+
+/**
+ * @swagger
+ * /friends/{friendshipId}:
+ *   delete:
+ *     summary: Exclui uma amizade
+ *     tags: [Amizades]
+ *     parameters:
+ *       - in: path
+ *         name: friendshipId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID da amizade que será excluída
+ *       - in: cookie
+ *         name: accessToken
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Amizade excluída com sucesso
+ *       401:
+ *         description: Usuário não autenticado ou token inválido
+ *       403:
+ *         description: Usuário não autorizado a excluir esta amizade
+ *       404:
+ *         description: Amizade não encontrada
+ */
+router.delete('/:friendshipId', deleteFriendship);
 
 module.exports = router;

@@ -1,4 +1,5 @@
 const Friendship = require('../Models/Friendship');
+const Message = require('../Models/Message');
 const Chat = require('../Models/Chat');
 const { Op } = require('sequelize');
 const User = require('../Models/User');
@@ -176,4 +177,51 @@ async function rejectFriendRequest(userId, friendshipId) {
     }
 }
 
-module.exports = { sendFriendRequest, acceptFriendRequest, getFriendshipRequests, rejectFriendRequest }
+
+async function deleteFriendship(userId, friendshipId) {
+    const friendship = await Friendship.findByPk(friendshipId);
+
+    if (!friendship) {
+        const error = new Error("Amizade não encontrada!");
+        error.statusCode = 404;
+        throw error;
+    }
+
+    if (friendship.user1Id !== userId && friendship.user2Id !== userId) {
+        const error = new Error("Usuário inválido!");
+        error.statusCode = 403;
+        throw error;
+    }
+
+    const chat = await Chat.findOne({
+        where: {
+            [Op.or]: [
+                {
+                    user1Id: friendship.user1Id,
+                    user2Id: friendship.user2Id
+                },
+                {
+                    user1Id: friendship.user2Id,
+                    user2Id: friendship.user1Id
+                }
+            ]
+        }
+    });
+
+    if (chat) {
+        await Message.destroy({
+            where: {
+                chatId: chat.id
+            }
+        });
+
+        await chat.destroy();
+    }
+
+    await friendship.destroy();
+
+    return { message: "Amizade excluída com sucesso!" };
+}
+
+
+module.exports = { sendFriendRequest, acceptFriendRequest, getFriendshipRequests, rejectFriendRequest, deleteFriendship }
