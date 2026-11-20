@@ -2,6 +2,7 @@ const Chat = require('../Models/Chat');
 const { Op } = require('sequelize');
 const User = require('../Models/User');
 const Course = require('../Models/Course');
+const Friendship = require('../Models/Friendship');
 
 async function createChat(data) {
     const { user1Id, user2Id } = data;
@@ -50,7 +51,7 @@ async function getChatsByUser(userId) {
     const formattedChats = chats.map(chat => {
         const otherUser = chat.user1Id === userId ? chat.user2 : chat.user1;
 
-        return {id: chat.id, otherUser}
+        return {id: chat.id, friendshipId: chat.friendshipId, otherUser}
     })
 
     return { chats: formattedChats }
