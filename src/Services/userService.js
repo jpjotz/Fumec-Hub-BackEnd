@@ -152,23 +152,26 @@ async function deleteAccount(userId, data) {
         throw error;
     }
 
-    const messages = await Message.findAll({
-        where: {
-            senderId: userId
-        }
-    });
-
-    for (const message of messages) {
-        await message.destroy();
-    }
-
     const chats = await Chat.findAll({
         where: {
             [Op.or]: [
-                { user1Id: userId }, { user2Id: userId }
+                { user1Id: userId },
+                { user2Id: userId }
             ]
         }
     });
+
+    const chatIds = chats.map(chat => chat.id);
+
+    if (chatIds.length > 0) {
+        await Message.destroy({
+            where: {
+                chatId: {
+                    [Op.in]: chatIds
+                }
+            }
+        });
+    }
 
     for (const chat of chats) {
         await chat.destroy();
@@ -177,7 +180,8 @@ async function deleteAccount(userId, data) {
     const friendships = await Friendship.findAll({
         where: {
             [Op.or]: [
-                { user1Id: userId }, { user2Id: userId }
+                { user1Id: userId },
+                { user2Id: userId }
             ]
         }
     });
@@ -188,8 +192,7 @@ async function deleteAccount(userId, data) {
 
     await user.destroy();
 
-    return { message: "Usuário deletado com sucesso!" }
-
+    return { message: "Usuário deletado com sucesso!" };
 }
 
 module.exports = { createUser, getProfile, editProfile, changePassword, deleteAccount }
