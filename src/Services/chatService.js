@@ -5,11 +5,12 @@ const Course = require('../Models/Course');
 const Friendship = require('../Models/Friendship');
 
 async function createChat(data) {
-    const { user1Id, user2Id } = data;
+    const { user1Id, user2Id, friendshipId } = data;
 
     const chat = await Chat.create({
         user1Id,
-        user2Id
+        user2Id,
+        friendshipId
     });
 
     return {

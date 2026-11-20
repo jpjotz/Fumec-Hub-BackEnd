@@ -128,6 +128,7 @@ async function acceptFriendRequest(userId, friendshipId) {
         event: 'newChat',
         chat: {
             id: chat.id,
+            friendshipId: requestExists.id,
             otherUser
         }
     });
@@ -136,6 +137,7 @@ async function acceptFriendRequest(userId, friendshipId) {
         event: 'newChat',
         chat: {
             id: chat.id,
+            friendshipId: requestExists.id,
             otherUser: currentUser
         }
     })

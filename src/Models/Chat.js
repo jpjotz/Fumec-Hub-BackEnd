@@ -25,6 +25,15 @@ const chat = sequelize.define("Chat", {
         }
     },
 
+    friendshipId: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: 'Friendships',
+            key: 'id'
+        }
+    }
+
 });
 
 chat.belongsTo(User, {
