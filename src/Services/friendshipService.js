@@ -113,7 +113,8 @@ async function acceptFriendRequest(userId, friendshipId) {
 
     const chat = await Chat.create({
         user1Id: requestExists.user1Id,
-        user2Id: requestExists.user2Id
+        user2Id: requestExists.user2Id,
+        friendshipId: requestExists.id
     });
 
     const otherUser = await User.findByPk(requestExists.user2Id, {
