@@ -1,6 +1,7 @@
 const Friendship = require('../Models/Friendship');
 const Message = require('../Models/Message');
 const Chat = require('../Models/Chat');
+const Course = require('../Models/Course');
 const { Op } = require('sequelize');
 const User = require('../Models/User');
 const { sendToUser } = require('../Sockets/socket');
@@ -118,11 +119,19 @@ async function acceptFriendRequest(userId, friendshipId) {
     });
 
     const otherUser = await User.findByPk(requestExists.user2Id, {
-        attributes: ['id', 'name']
+        attributes: ['id', 'name'],
+        include: [{
+            model: Course,
+            attributes: ['id', 'name']
+        }]
     });
 
     const currentUser = await User.findByPk(requestExists.user1Id, {
-        attributes: ['id', 'name']
+        attributes: ['id', 'name'],
+        include: [{
+            model: Course,
+            attributes: ['id', 'name']
+        }]
     });
 
     sendToUser(requestExists.user1Id, {
